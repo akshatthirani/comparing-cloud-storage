@@ -14,11 +14,12 @@ def main():
     parser.add_argument('service', type=str, nargs=1)
     #parser.add_argument('api_token', type=str, nargs=1)
     parser.add_argument('num_trials', type=int, nargs=1)
-    parser.add_argument('file_size', type=int, nargs=1, help='constant file size (optional)')  # optional file size parameter
+    #parser.add_argument('file_size', type=int, nargs=1, help='constant file size (optional)')
+    parser.add_argument('--filesize', type=int, default=-1, help='constant file size (optional)')
     parseResult = parser.parse_args()
     service = parseResult.service[0]
     numTrials = parseResult.num_trials[0] 
-    fsize = parseResult.file_size[0]
+    fsize = parseResult.filesize if (parseResult.filesize != -1) else choice([10000,25000,100000])
 
     user = 'william.roever@gmail.com'
     ftype = choice(['avi','jpg','mp3','db'])
@@ -125,7 +126,7 @@ def main():
 
             # Update DB
             update_q = 'UPDATE \"box_tokens\" SET \"access_token\" = %s, \"refresh_token\"= %s '\
-                       'WHERE \"user\"=\'%s\';'
+                       'WHERE \"user\"=%s;'
             cur.execute(update_q, (new_token_dict['access_token'],new_token_dict['refresh_token'],usr))
             con.commit()
 
@@ -133,7 +134,6 @@ def main():
 
 
         q = ("""SELECT * FROM \"box_tokens\" WHERE \"user\"=\'%s\';""") % user
-        print q
         cur.execute(q)
         row = cur.fetchone()
         current_token = row[1]
